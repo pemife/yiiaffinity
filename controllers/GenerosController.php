@@ -44,6 +44,8 @@ class GenerosController extends \yii\web\Controller
             Yii::$app->db->createCommand()
                 ->update('generos', $generosForm->attributes, ['id' => $id])
                 ->execute();
+
+            Yii::$app->session->setFlash('success', 'Fila modificada correctamente.');
             return $this->redirect(['generos/index']);
         }
 
