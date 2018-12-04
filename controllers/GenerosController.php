@@ -57,12 +57,15 @@ class GenerosController extends \yii\web\Controller
 
     public function actionDelete($id)
     {
-        $filaDependencia = Yii::$app->db
-        ->createCommand('SELECT *
+        $count = Yii::$app->db
+        ->createCommand('SELECT count(*)
                            FROM peliculas
-                          WHERE genero_id = :id', [':id' => $id])->queryOne();
+                          WHERE genero_id = :id', [':id' => $id])
+                          ->queryScalar();
+        // Aqui limito a una sola fila, y un solo campo por optimizacion
+        // QueryScalar devuelve el primer valor de la primera fila
 
-        if (!$filaDependencia) {
+        if ($count == 0) {
             Yii::$app->db->createCommand()->delete('generos', ['id' => $id])->execute();
             Yii::$app->session->setFlash('success', 'Fila borrada correctamente.');
         } else {
@@ -87,7 +90,7 @@ class GenerosController extends \yii\web\Controller
             ->createCommand('SELECT *
                                FROM generos
                               WHERE id = :id', [':id' => $id])->queryOne();
-        if ($fila === false) {
+        if (empty($fila)) {
             throw new NotFoundHttpException('Ese género no existe.');
         }
         return $fila;
