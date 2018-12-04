@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\GenerosForm;
 use Yii;
+use yii\data\Pagination;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -13,10 +14,27 @@ class GenerosController extends \yii\web\Controller
 {
     public function actionIndex()
     {
-        $filas = \Yii::$app->db
-            ->createCommand('SELECT * FROM generos')->queryAll();
+        $count = Yii::$app->db
+                ->createCommand('SELECT count(*) FROM generos')
+                ->queryScalar();
+
+        $pagination = new Pagination([
+            'defaultPageSize' => 5,
+            'totalCount' => $count,
+        ]);
+
+        $filas = Yii::$app->db
+            ->createCommand('SELECT *
+                               FROM generos
+                           ORDER BY genero
+                              LIMIT :limit
+                             OFFSET :offset', [
+                ':limit' => $pagination->limit,
+                ':offset' => $pagination->offset,
+                ])->queryAll();
         return $this->render('index', [
             'filas' => $filas,
+            'pagination' => $pagination,
         ]);
     }
 
