@@ -14,7 +14,10 @@ class PeliculasController extends \yii\web\Controller
     public function actionIndex()
     {
         $filas = \Yii::$app->db
-            ->createCommand('SELECT * FROM peliculas')->queryAll();
+            ->createCommand('SELECT p.id, titulo, anyo, genero
+                               FROM peliculas p
+                               JOIN generos g
+                                 ON p.genero_id = g.id')->queryAll();
         return $this->render('index', [
             'filas' => $filas,
         ]);
@@ -25,10 +28,13 @@ class PeliculasController extends \yii\web\Controller
         $peliculasForm = new PeliculasForm();
 
         if ($peliculasForm->load(Yii::$app->request->post()) && $peliculasForm->validate()) {
-            Yii::$app->db->createCommand()
+            if (in_array($peliculasForm->genero_id, array_keys($this->listaGeneros()))) {
+                Yii::$app->db->createCommand()
                 ->insert('peliculas', $peliculasForm->attributes)
                 ->execute();
-            return $this->redirect(['peliculas/index']);
+                return $this->redirect(['peliculas/index']);
+            }
+            Yii::$app->session->setFlash('danger', 'El genero de la pelicula no existe');
         }
         return $this->render('create', [
             'peliculasForm' => $peliculasForm,

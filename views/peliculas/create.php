@@ -4,7 +4,9 @@ use yii\widgets\ActiveForm;
 
 $this->title = 'Insertar una nueva película';
 $this->params['breadcrumbs'][] = $this->title;
+
 ?>
+
 
 <?php $form = ActiveForm::begin() ?>
     <?= $form->field($peliculasForm, 'titulo') ?>

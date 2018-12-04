@@ -57,7 +57,17 @@ class GenerosController extends \yii\web\Controller
 
     public function actionDelete($id)
     {
-        Yii::$app->db->createCommand()->delete('generos', ['id' => $id])->execute();
+        $filaDependencia = Yii::$app->db
+        ->createCommand('SELECT *
+                           FROM peliculas
+                          WHERE genero_id = :id', [':id' => $id])->queryOne();
+
+        if (!$filaDependencia) {
+            Yii::$app->db->createCommand()->delete('generos', ['id' => $id])->execute();
+            Yii::$app->session->setFlash('success', 'Fila borrada correctamente.');
+        } else {
+            Yii::$app->session->setFlash('danger', 'Existe una pélicula con ese género!.');
+        }
         return $this->redirect(['generos/index']);
     }
 
