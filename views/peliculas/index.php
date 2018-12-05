@@ -4,7 +4,7 @@ use yii\helpers\Html;
 <div class="row">
     <table class="table table-striped">
         <thead>
-            <th>Título</th>
+            <th><?= Html::a('Título', ['peliculas/index', 'ordenacion' => 'titulo']) ?></th>
             <th>Año</th>
             <th>Duración</th>
             <th>Género</th>

@@ -7,19 +7,19 @@ use Yii;
 use yii\data\Pagination;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 
 /**
  * Definición del controlador generos.
  */
-class GenerosController extends \yii\web\Controller
+class GenerosController extends Controller
 {
     public function behaviors()
     {
         return [
             'verbs' => [
                 'class' => VerbFilter::className(),
-                'only' => ['delete'],
                 'actions' => [
                     'delete' => ['post'],
                 ],

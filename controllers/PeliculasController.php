@@ -11,13 +11,15 @@ use yii\web\NotFoundHttpException;
  */
 class PeliculasController extends \yii\web\Controller
 {
-    public function actionIndex()
+    public function actionIndex($ordenacion)
     {
         $filas = \Yii::$app->db
             ->createCommand('SELECT p.id, titulo, anyo, genero, duracion
                                FROM peliculas p
                                JOIN generos g
-                                 ON p.genero_id = g.id')->queryAll();
+                                 ON p.genero_id = g.id
+                           ORDER BY :ordenacion', [':ordenacion' => $ordenacion])
+                           ->queryAll();
         return $this->render('index', [
             'filas' => $filas,
         ]);
