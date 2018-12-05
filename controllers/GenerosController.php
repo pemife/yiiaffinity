@@ -5,6 +5,8 @@ namespace app\controllers;
 use app\models\GenerosForm;
 use Yii;
 use yii\data\Pagination;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -12,6 +14,30 @@ use yii\web\NotFoundHttpException;
  */
 class GenerosController extends \yii\web\Controller
 {
+    public function behaviors()
+    {
+        return [
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'only' => ['delete'],
+                'actions' => [
+                    'delete' => ['post'],
+                ],
+            ],
+            'access' => [
+                'class' => AccessControl::class,
+                'only' => ['update'],
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
+        ];
+    }
+    // Esto no entra en el examen, es parte del segundo trimestre
+
     public function actionIndex()
     {
         $count = Yii::$app->db
