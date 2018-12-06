@@ -4,10 +4,10 @@ use yii\helpers\Html;
 <div class="row">
     <table class="table table-striped">
         <thead>
-            <th><?= Html::a('Título', ['peliculas/index', 'ordenacion' => 'titulo']) ?></th>
-            <th>Año</th>
-            <th>Duración</th>
-            <th>Género</th>
+            <th><?= $sort->link('titulo') ?></th>
+            <th><?= $sort->link('anyo') ?></th>
+            <th><?= $sort->link('duracion') ?></th>
+            <th><?= $sort->link('genero') ?></th>
             <th>Acciones</th>
         </thead>
         <tbody>
