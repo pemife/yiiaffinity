@@ -7,11 +7,13 @@ use yii\widgets\LinkPager;
     <table class="table table-striped">
         <thead>
             <th>Genero</th>
+            <th>Cantidad</th>
         </thead>
         <tbody>
             <?php foreach ($filas as $fila): ?>
                 <tr>
                     <td><?= Html::encode($fila['genero']) ?></td>
+                    <td><?= Html::encode($fila['cantidad']) ?></td>
                     <td>
                         <?= Html::a('Modificar', ['generos/update', 'id' => $fila['id']], ['class' => 'btn-xs btn-info']) ?>
                         <?= Html::a('Borrar', ['generos/delete', 'id' => $fila['id']], [

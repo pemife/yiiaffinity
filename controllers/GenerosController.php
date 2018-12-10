@@ -50,8 +50,11 @@ class GenerosController extends Controller
         ]);
 
         $filas = Yii::$app->db
-            ->createCommand('SELECT *
-                               FROM generos
+            ->createCommand('SELECT g.*, count(p.id) AS cantidad
+                               FROM generos g
+                          LEFT JOIN peliculas p
+                                 ON g.id = p.genero_id
+                           GROUP BY g.id
                            ORDER BY genero
                               LIMIT :limit
                              OFFSET :offset', [
@@ -61,6 +64,7 @@ class GenerosController extends Controller
         return $this->render('index', [
             'filas' => $filas,
             'pagination' => $pagination,
+            // 'peliculasGenero' => $this->mapGenerosPeliculas(),
         ]);
     }
 
@@ -139,4 +143,22 @@ class GenerosController extends Controller
         }
         return $fila;
     }
+
+    // Aproximacion a cantidad peliculas de un genero
+    // private function mapGenerosPeliculas()
+    // {
+    //     $generos = $this->listaGeneros();
+    //     var_dump($generos);
+    //     $numPeliculasGenero = [];
+    //     foreach ($generos as $id => $genero) {
+    //         $numPeliculasGenero[$genero] = Yii::$app->db
+    //             ->createCommand('SELECT count(*)
+    //                                FROM peliculas p
+    //                                JOIN generos g
+    //                                  ON p.genero_id = g.id
+    //                               WHERE p.genero_id = :id', [':id' => $id])
+    //             ->queryScalar();
+    //     }
+    //     return $numPeliculasGenero;
+    // }
 }
