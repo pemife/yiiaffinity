@@ -51,15 +51,17 @@ $config = [
         'formatter' => [
             'timeZone' => 'Europe/Madrid',
         ],
-        /*
+
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'generos/update/<id:\d+>' => 'generos/update',
+                'generos/index/<page:\d+>' => 'generos/index',
             ],
         ],
-        */
     ],
+    'defaultRoute' => 'generos/index',
     'params' => $params,
 ];
 
