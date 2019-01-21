@@ -7,6 +7,7 @@ $log = require __DIR__ . '/log.php';
 $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
+    'name' => 'FilmAffinity',
     'bootstrap' => ['log'],
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
@@ -51,17 +52,15 @@ $config = [
         'formatter' => [
             'timeZone' => 'Europe/Madrid',
         ],
-
+        /*
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                'generos/update/<id:\d+>' => 'generos/update',
-                'generos/index/<page:\d+>' => 'generos/index',
             ],
         ],
+        */
     ],
-    'defaultRoute' => 'generos/index',
     'params' => $params,
 ];
 

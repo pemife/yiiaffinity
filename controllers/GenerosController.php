@@ -2,24 +2,23 @@
 
 namespace app\controllers;
 
-use app\models\GenerosForm;
+use app\models\Generos;
+use app\models\Peliculas;
 use Yii;
 use yii\data\Pagination;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
-/**
- * Definición del controlador generos.
- */
 class GenerosController extends Controller
 {
     public function behaviors()
     {
         return [
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['post'],
                 ],
@@ -36,129 +35,100 @@ class GenerosController extends Controller
             ],
         ];
     }
-    // Esto no entra en el examen, es parte del segundo trimestre
 
+    /**
+     * Listado de géneros.
+     * @return string La vista del listado de géneros
+     */
     public function actionIndex()
     {
-        $count = Yii::$app->db
-                ->createCommand('SELECT count(*) FROM generos')
-                ->queryScalar();
+        $count = Generos::find()->count();
 
         $pagination = new Pagination([
             'defaultPageSize' => 5,
             'totalCount' => $count,
         ]);
 
-        $filas = Yii::$app->db
-            ->createCommand('SELECT g.*, count(p.id) AS cantidad
-                               FROM generos g
-                          LEFT JOIN peliculas p
-                                 ON g.id = p.genero_id
-                           GROUP BY g.id
-                           ORDER BY genero
-                              LIMIT :limit
-                             OFFSET :offset', [
-                ':limit' => $pagination->limit,
-                ':offset' => $pagination->offset,
-                ])->queryAll();
+        $filas = Generos::find()
+            ->orderBy('genero')
+            ->limit($pagination->limit)
+            ->offset($pagination->offset)
+            ->all();
+
         return $this->render('index', [
             'filas' => $filas,
             'pagination' => $pagination,
-            // 'peliculasGenero' => $this->mapGenerosPeliculas(),
         ]);
     }
 
     public function actionCreate()
     {
-        $generosForm = new GenerosForm();
+        $genero = new Generos();
 
-        if ($generosForm->load(Yii::$app->request->post()) && $generosForm->validate()) {
-            Yii::$app->db->createCommand()
-                ->insert('generos', $generosForm->attributes)
-                ->execute();
+        if ($genero->load(Yii::$app->request->post()) && $genero->save()) {
             Yii::$app->session->setFlash('success', 'Fila insertada correctamente.');
             return $this->redirect(['generos/index']);
         }
+
         return $this->render('create', [
-            'generosForm' => $generosForm,
+            'genero' => $genero,
         ]);
     }
 
+    public function actionVer($id)
+    {
+        return $this->render('ver', [
+            'genero' => $this->buscarGenero($id),
+            'peliculas' => Peliculas::findAll(['genero_id' => $id]),
+        ]);
+    }
+
+    /**
+     * Modifica un género.
+     * @param  int             $id El id del género a modificar
+     * @return string|Response     El formulario de modificación o una redirección
+     */
     public function actionUpdate($id)
     {
-        $generosForm = new GenerosForm(['attributes' => $this->buscarGenero($id)]);
-
-        if ($generosForm->load(Yii::$app->request->post()) && $generosForm->validate()) {
-            Yii::$app->db->createCommand()
-                ->update('generos', $generosForm->attributes, ['id' => $id])
-                ->execute();
-
+        $genero = $this->buscarGenero($id);
+        if ($genero->load(Yii::$app->request->post()) && $genero->save()) {
             Yii::$app->session->setFlash('success', 'Fila modificada correctamente.');
             return $this->redirect(['generos/index']);
         }
-
         return $this->render('update', [
-            'generosForm' => $generosForm,
-            'listaGeneros' => $this->listaGeneros(),
+            'genero' => $genero,
         ]);
     }
 
+    /**
+     * Borra un género.
+     * @param  int      $id El id del género a borrar
+     * @return Response     Una redirección
+     */
     public function actionDelete($id)
     {
-        $count = Yii::$app->db
-        ->createCommand('SELECT count(*)
-                           FROM peliculas
-                          WHERE genero_id = :id', [':id' => $id])
-                          ->queryScalar();
-        // Aqui limito a una sola fila, y un solo campo por optimizacion
-        // QueryScalar devuelve el primer valor de la primera fila
-
-        if ($count == 0) {
-            Yii::$app->db->createCommand()->delete('generos', ['id' => $id])->execute();
-            Yii::$app->session->setFlash('success', 'Fila borrada correctamente.');
+        $genero = $this->buscarGenero($id);
+        if (empty($genero->peliculas)) {
+            $genero->delete();
+            Yii::$app->session->setFlash('success', 'Género borrado correctamente.');
         } else {
-            Yii::$app->session->setFlash('danger', 'Existe una pélicula con ese género!.');
+            Yii::$app->session->setFlash('error', 'Hay películas de ese género.');
         }
         return $this->redirect(['generos/index']);
     }
 
-    private function listaGeneros()
-    {
-        $generos = Yii::$app->db->createCommand('SELECT * FROM generos')->queryAll();
-        $listaGeneros = [];
-        foreach ($generos as $genero) {
-            $listaGeneros[$genero['id']] = $genero['genero'];
-        }
-        return $listaGeneros;
-    }
-
+    /**
+     * Localiza un género por su id.
+     * @param  int                   $id El id del género
+     * @return array                     El género si existe
+     * @throws NotFoundHttpException     Si el género no existe
+     */
     private function buscarGenero($id)
     {
-        $fila = Yii::$app->db
-            ->createCommand('SELECT *
-                               FROM generos
-                              WHERE id = :id', [':id' => $id])->queryOne();
-        if (empty($fila)) {
-            throw new NotFoundHttpException('Ese género no existe.');
+        $genero = Generos::findOne($id);
+        if ($genero === null) {
+            throw new NotFoundHttpException('El género no existe.');
         }
-        return $fila;
+        return $genero;
     }
-
-    // Aproximacion a cantidad peliculas de un genero
-    // private function mapGenerosPeliculas()
-    // {
-    //     $generos = $this->listaGeneros();
-    //     var_dump($generos);
-    //     $numPeliculasGenero = [];
-    //     foreach ($generos as $id => $genero) {
-    //         $numPeliculasGenero[$genero] = Yii::$app->db
-    //             ->createCommand('SELECT count(*)
-    //                                FROM peliculas p
-    //                                JOIN generos g
-    //                                  ON p.genero_id = g.id
-    //                               WHERE p.genero_id = :id', [':id' => $id])
-    //             ->queryScalar();
-    //     }
-    //     return $numPeliculasGenero;
-    // }
 }
