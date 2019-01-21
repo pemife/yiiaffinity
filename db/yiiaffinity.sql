@@ -34,6 +34,32 @@ CREATE TABLE usuarios
   , password VARCHAR(60) NOT NULL
 );
 
+DROP TABLE IF EXISTS personas CASCADE;
+
+CREATE TABLE personas
+(
+    id      BIGSERIAL     PRIMARY KEY
+  , nombre  VARCHAR(255)
+);
+
+DROP TABLE IF EXISTS papeles CASCADE;
+
+CREATE TABLE papeles
+(
+    id      BIGSERIAL     PRIMARY KEY
+  , papel   VARCHAR(50)
+);
+
+DROP TABLE IF EXISTS participaciones CASCADE;
+
+CREATE TABLE participaciones
+(
+    pelicula_id   BIGSERIALlajsdfjñaesdf
+  , persona_id
+);
+
+-- TODO
+
 -- INSERT
 
 INSERT INTO usuarios (login, password)
