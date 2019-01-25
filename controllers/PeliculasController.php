@@ -69,6 +69,7 @@ class PeliculasController extends \yii\web\Controller
     public function actionVer($id)
     {
         $pelicula = $this->buscarPelicula($id);
+<<<<<<< HEAD
 
         $participantes = (new \yii\db\Query())
             ->select(['personas.nombre', 'papeles.papel'])
@@ -83,6 +84,12 @@ class PeliculasController extends \yii\web\Controller
         return $this->render('ver', [
             'pelicula' => $pelicula,
             'participantes' => $participantes,
+=======
+        $pelicula->genero_id = $pelicula->genero->genero;
+
+        return $this->render('ver', [
+            'pelicula' => $pelicula,
+>>>>>>> d45c38119ed18f1e03fe791b0f729313aa4d2a87
         ]);
     }
 
