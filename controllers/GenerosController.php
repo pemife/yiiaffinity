@@ -42,14 +42,12 @@ class GenerosController extends Controller
      */
     public function actionIndex()
     {
-        $count = Generos::find()->count();
-
         $pagination = new Pagination([
             'defaultPageSize' => 5,
-            'totalCount' => $count,
+            'totalCount' => Generos::find()->count(),
         ]);
 
-        $filas = Generos::find()
+        $filas = Generos::findWithCuantas()
             ->orderBy('genero')
             ->limit($pagination->limit)
             ->offset($pagination->offset)
