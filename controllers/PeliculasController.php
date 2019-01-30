@@ -2,11 +2,11 @@
 
 namespace app\controllers;
 
-use app\models\BuscarForm;
 use app\models\Generos;
 use app\models\Peliculas;
+use app\models\PeliculasSearch;
 use Yii;
-use yii\data\Sort;
+use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
 use yii\web\NotFoundHttpException;
 
@@ -17,40 +17,31 @@ class PeliculasController extends \yii\web\Controller
 {
     public function actionPrueba()
     {
-        Yii::$app->session->setFlash('error', 'Esto es un error.');
-        return $this->redirect(['peliculas/index']);
+        $provider = new ActiveDataProvider([
+            'query' => Peliculas::find(),
+            'pagination' => [
+                'pageSize' => 2,
+            ],
+            'sort' => [
+                'attributes' => [
+                    'titulo',
+                    'anyo',
+                ],
+            ],
+        ]);
+        var_dump($provider->models);
+        var_dump($provider->count);
+        var_dump($provider->totalCount);
     }
 
     public function actionIndex()
     {
-        $sort = new Sort([
-            'attributes' => [
-                'titulo',
-                'anyo',
-                'duracion',
-                'genero',
-            ],
-        ]);
-
-        $buscarForm = new BuscarForm();
-        $query = Peliculas::find()->with('genero');
-
-        if ($buscarForm->load(Yii::$app->request->post()) && $buscarForm->validate()) {
-            $query->andFilterWhere(['ilike', 'titulo', $buscarForm->titulo]);
-            $query->andFilterWhere(['genero_id' => $buscarForm->genero_id]);
-        }
-
-        if (empty($sort->orders)) {
-            $query->orderBy(['id' => SORT_ASC]);
-        } else {
-            $query->orderBy($sort->orders);
-        }
+        $searchModel = new PeliculasSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->get());
 
         return $this->render('index', [
-            'peliculas' => $query->all(),
-            'sort' => $sort,
-            'listaGeneros' => ['' => ''] + $this->listaGeneros(),
-            'buscarForm' => $buscarForm,
+            'dataProvider' => $dataProvider,
+            'searchModel' => $searchModel,
         ]);
     }
 
