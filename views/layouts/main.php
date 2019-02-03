@@ -40,13 +40,14 @@ AppAsset::register($this);
         'items' => [
             ['label' => 'Películas', 'url' => ['/peliculas/index']],
             ['label' => 'Géneros', 'url' => ['/generos/index']],
+            ['label' => 'Usuarios', 'url' => ['/usuarios/index']],
             Yii::$app->user->isGuest ? (
                 ['label' => 'Login', 'url' => ['/site/login']]
             ) : (
                 '<li>'
                 . Html::beginForm(['/site/logout'], 'post')
                 . Html::submitButton(
-                    'Logout (' . Yii::$app->user->identity->username . ')',
+                    'Logout (' . Yii::$app->user->identity->login . ')',
                     ['class' => 'btn btn-link logout']
                 )
                 . Html::endForm()

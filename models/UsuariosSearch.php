@@ -4,11 +4,12 @@ namespace app\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
+use app\models\Usuarios;
 
 /**
- * PeliculasSearch represents the model behind the search form of `app\models\Peliculas`.
+ * UsuariosSearch represents the model behind the search form of `app\models\Usuarios`.
  */
-class PeliculasSearch extends Peliculas
+class UsuariosSearch extends Usuarios
 {
     /**
      * {@inheritdoc}
@@ -16,15 +17,9 @@ class PeliculasSearch extends Peliculas
     public function rules()
     {
         return [
-            [['id', 'genero_id'], 'integer'],
-            [['titulo', 'duracion', 'sinopsis', 'genero.genero'], 'safe'],
-            [['anyo', 'precio'], 'number'],
+            [['id'], 'integer'],
+            [['login', 'password'], 'safe'],
         ];
-    }
-
-    public function attributes()
-    {
-        return array_merge(parent::attributes(), ['genero.genero']);
     }
 
     /**
@@ -37,7 +32,7 @@ class PeliculasSearch extends Peliculas
     }
 
     /**
-     * Creates data provider instance with search query applied.
+     * Creates data provider instance with search query applied
      *
      * @param array $params
      *
@@ -45,18 +40,13 @@ class PeliculasSearch extends Peliculas
      */
     public function search($params)
     {
-        $query = Peliculas::find()->joinWith('genero');
+        $query = Usuarios::find();
 
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
-
-        $dataProvider->sort->attributes['genero.genero'] = [
-            'asc' => ['generos.genero' => SORT_ASC],
-            'desc' => ['generos.genero' => SORT_DESC],
-        ];
 
         $this->load($params);
 
@@ -69,14 +59,10 @@ class PeliculasSearch extends Peliculas
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'anyo' => $this->anyo,
-            'precio' => $this->precio,
-            'genero_id' => $this->genero_id,
         ]);
 
-        $query->andFilterWhere(['ilike', 'titulo', $this->titulo])
-            ->andFilterWhere(['ilike', 'sinopsis', $this->sinopsis])
-            ->andFilterWhere(['ilike', 'generos.genero', $this->getAttribute('genero.genero')]);
+        $query->andFilterWhere(['ilike', 'login', $this->login])
+            ->andFilterWhere(['ilike', 'password', $this->password]);
 
         return $dataProvider;
     }
