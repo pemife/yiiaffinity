@@ -5,12 +5,14 @@ namespace app\controllers;
 use app\models\ContactForm;
 use app\models\ListasForm;
 use app\models\LoginForm;
+use app\models\UploadForm;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\MethodNotAllowedHttpException;
 use yii\web\Response;
+use yii\web\UploadedFile;
 
 class SiteController extends Controller
 {
@@ -171,6 +173,37 @@ class SiteController extends Controller
             return ['', 'Huelva', 'Palos', 'Moguer', 'Lepe'];
         }
         return [];
+    }
+
+    public function actionSubir()
+    {
+        $model = new UploadForm();
+
+        if (Yii::$app->request->isPost) {
+            $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
+            if ($model->upload()) {
+                // file is uploaded successfully
+                return $this->redirect(['site/index']);
+            }
+        }
+
+        return $this->render('subir', ['model' => $model]);
+    }
+
+    public function actionEmail()
+    {
+        if (Yii::$app->mailer->compose('home-link')
+            ->setFrom('ricpelo@gmail.com')
+            ->setTo('iesdonana2019@gmail.com')
+            ->setSubject('Prueba de correo')
+            // ->setTextBody('Esto es una prueba.')
+            // ->setHtmlBody('<h1>Esto es una prueba</h1>')
+            ->send()) {
+            Yii::$app->session->setFlash('success', 'Se ha enviado correctamente.');
+        } else {
+            Yii::$app->session->setFlash('error', 'Ha habido un error al mandar el correo.');
+        }
+        return $this->redirect(['site/index']);
     }
 
     private function getProvincias()
